@@ -72,6 +72,16 @@ class Movie
         $this->cover = $cover;
     }
 
+    public function getDuration(): ?int 
+    {
+        return $this->duration;
+    }
+
+    public function setDuration(?int $duration): void 
+    {
+        $this->duration = $duration;
+    }
+
     public function getCategories(): array
     {
         return $this->categories;

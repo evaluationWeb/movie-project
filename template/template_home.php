@@ -17,6 +17,8 @@
             <input type="file" name="fichier">
             <input type="submit" value="Envoyer" name="submit">
         </form>
+        <p><?= $data["error"] ?? ""?></p>
+        <p><?= $data["valid"] ?? ""?></p>
     </main>
 </body>
 

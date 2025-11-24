@@ -13,7 +13,7 @@
     <?php include 'component/navbar.php' ?>
     <main class="container">
         <h1>Ajouter un Film</h1>
-        <form action="" method="post">
+        <form action="" method="post" enctype="multipart/form-data">
             <fieldset>
                 <label>Saisir le titre du film
                     <input type="text" name="title" placeholder="Saisir le titre du film">
@@ -26,8 +26,9 @@
                 <label>Saisir la date de sortie
                     <input type="datetime-local" name="publish_at" aria-label="Choix de la date de sortie">
                 </label>
-                <label>Importer une image pour la couverture du filemtime
-                        <input type="file" name="cover">
+                <label>Saisir la durée du film en minutes
+                    <input type="text" name="duration" placeholder="Saisir la durée du film..."
+                        aria-label="Durée du film">
                 </label>
                 <select aria-label="Sélectionner les categories..." multiple size="6" name="categories[]">
                     <option disabled>
@@ -38,6 +39,9 @@
                         <option value="<?= $category["id"] ?>"><?= $category["name"] ?></option>
                     <?php endforeach ?>
                 </select>
+                <label>Importer une image du film
+                    <input type="file" name="cover">
+                </label>
             <fieldset>
                 <input type="submit" value="Ajouter" name="submit">
         </form>

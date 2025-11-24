@@ -76,7 +76,6 @@ if (isset($_SESSION["connected"]) && $_SESSION["connected"] == true) {
 }
 //router deconnecté
 else {
-
     switch ($path) {
         case '/':
             $homeController->index();

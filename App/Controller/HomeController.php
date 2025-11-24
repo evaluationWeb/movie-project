@@ -14,20 +14,19 @@ class HomeController extends AbstractController
      */
     public function index(): mixed
     {
+        $data = [];
         //Test si le formulaire
         if (isset($_POST["submit"])) {
             //vérifier si un fichier a été envoyé
             if (isset($_FILES["fichier"])) {
-                //chemin temp du fichier
-                $tmp = $_FILES["fichier"]["tmp_name"];
-                //nom de
-                $name = $_FILES["fichier"]["name"];
-                //Récupérer l'extension du fichier
-                $ext = Tools::getFileExtension($name);
-                //Déplacer et enregister le fichier renommer
-                move_uploaded_file($tmp, __DIR__ . "/../../public/asset/"  . uniqid("nom", true) . "." . $ext);
+                $newname = $this->uploadFile("fichier", "img", ["png", "jpeg", "bmp"]);
+                if ($newname === false) {
+                    $data["error"] = "Le format de fichier est invalide";
+                } else {
+                    $data["valid"] = "Le fichier : " .  $newname ." à été ajouté"; 
+                }
             }
-        }   
-        return $this->render("home","accueil");
+        }
+        return $this->render("home","accueil", $data);
     }
 }

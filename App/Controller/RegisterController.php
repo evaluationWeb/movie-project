@@ -7,17 +7,20 @@ use App\Model\Account;
 use App\Repository\AccountRepository;
 use App\Utils\Tools;
 use App\Controller\AbstractController;
+use Mithridatem\Validation\Validator;
+use Mithridatem\Validation\Exception\ValidationException;
 
 class RegisterController extends AbstractController
 {
     //Attributs
     private AccountRepository $accountRepository;
-
+    private Validator $validator;
     //Constructeur
     public function __construct()
     {
         //Injection de dépendance
         $this->accountRepository = new AccountRepository();
+        $this->validator = new Validator();
     }
 
     //Méthodes
@@ -33,8 +36,6 @@ class RegisterController extends AbstractController
         if (isset($_POST["submit"])) {
             //vérifier si les champs sont remplis
             if (
-                !empty($_POST["firstname"]) &&
-                !empty($_POST["lastname"]) &&
                 !empty($_POST["email"]) &&
                 !empty($_POST["password"]) &&
                 !empty($_POST["confirm-password"])
@@ -49,18 +50,27 @@ class RegisterController extends AbstractController
                         $account->setFirstname(Tools::sanitize($_POST["firstname"]));
                         $account->setLastname(Tools::sanitize($_POST["lastname"]));
                         $account->setEmail(Tools::sanitize($_POST["email"]));
-                        //Hashage du password
-                        $hash = password_hash(Tools::sanitize($_POST["password"]), PASSWORD_DEFAULT);
-                        $account->setPassword($hash);
-                        //Création et ajout du droit
-                        $grant = new Grant("ROLE_USER");
-                        $grant->setId(1);
-                        $account->setGrant($grant);
-                        //Ajout du compte en BDD
-                        $this->accountRepository->saveAccount($account);
-                        $data["valid"] = "Le compte : " . $account->getEmail() . " a été ajouté en BDD";
-                        //redirection dans 2 sec sur accueil
-                        header("Location: /");
+                        //Tester si le compte Account est valide
+                        try {
+                            //Validation du model Account
+                            $this->validator->validate($account);
+                            //Hashage du password
+                            $hash = password_hash(Tools::sanitize($_POST["password"]), PASSWORD_DEFAULT);
+                            $account->setPassword($hash);
+                            //Création et ajout du droit
+                            $grant = new Grant("ROLE_USER");
+                            $grant->setId(1);
+                            $account->setGrant($grant);
+                            //Ajout du compte en BDD
+                            $this->accountRepository->saveAccount($account);
+                            $data["valid"] = "Le compte : " . $account->getEmail() . " a été ajouté en BDD";
+                            //redirection dans 2 sec sur accueil
+                            header("Location: /");
+                        } 
+                        //Capture de la ValidationException
+                        catch(ValidationException $ve){
+                            $data["error"] = $ve->getMessage();
+                        }
                     }
                     //Message d'erreur le compte existe déja
                     else {

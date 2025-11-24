@@ -45,12 +45,15 @@ class MovieController extends AbstractController
                 $title = Tools::sanitize($_POST["title"]);
                 $description = Tools::sanitize($_POST["description"]);
                 $publishAt = Tools::sanitize($_POST["publish_at"]);
+                //Tester et initialiser la durée du film
+                $duration = $_POST["duration"] != "" ? (int) Tools::sanitize($_POST["duration"]) : 90;
                 //Créer un objet Movie
                 $movie = new Movie();
                 //Setter les valeurs
                 $movie->setTitle($title);
                 $movie->setDescription($description);
                 $movie->setPublishAt(new \DateTimeImmutable($publishAt));
+                $movie->setDuration($duration);
                 //Test si les categories existes
                 if (isset($_POST["categories"])) {
                     //Setter les categories à $movie
@@ -62,6 +65,26 @@ class MovieController extends AbstractController
                         //Ajouter la categorie à la liste des Category de Movie
                         $movie->addCategory($newCategory);
                     }
+                }
+                //tester si une image est importée
+                if (isset($_FILES["cover"]) && !empty($_FILES["cover"]["tmp_name"])) {
+                    //Récupération du nom du fichier
+                    $newname = $this->uploadFile("cover", $movie->getTitle(), ["png", "jpeg", "bmp"]);
+                    //Test du format de fichier
+                    if ($newname === false) {
+                        $data["error"] = "Le format de fichier est invalide";
+                        //setter l'iamge par défault
+                        $movie->setCover("profil.png");
+                    } else {
+                        $data["valid"] = "Le fichier : " .  $newname ." a été importé";
+                        //Set la bonne image 
+                        $movie->setCover($newname);
+                    }
+                } 
+                //Si l'image n'existe pas 
+                else {
+                    //Setter l'image par default
+                    $movie->setCover("profil.png");
                 }
                 //Appeler la méthode saveMovie du MovieRepository
                 $this->movieRepository->saveMovie($movie);

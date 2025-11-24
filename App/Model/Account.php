@@ -4,13 +4,22 @@ namespace App\Model;
 
 use App\Model\Grant;
 use App\Model\Movie;
+use Mithridatem\Validation\Attributes\NotBlank;
+use Mithridatem\Validation\Attributes\Length;
+use Mithridatem\Validation\Attributes\Email;
 
 class Account
 {
     //Attributs
     private ?int $id;
+    #[NotBlank]
+    #[Length(min: 2, max: 50)]
     private ?string $firstname;
+    #[NotBlank]
+    #[Length(min: 2, max: 50)]
     private ?string $lastname;
+    #[NotBlank]
+    #[Email]
     private ?string $email;
     private ?string $password;
     private ?Grant $grant;
