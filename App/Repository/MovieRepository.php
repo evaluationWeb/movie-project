@@ -47,8 +47,8 @@ class MovieRepository
             //Ajout des categories (si elle existe)
             $this->saveCategoryToMovie($movie);
 
-        } catch (\Exception $e) {
-            echo $e->getMessage();
+        } catch (\PDOException $pdo) {
+            throw new \PDOException("Erreur d'enregistrement en BDD");
         }
     }
 

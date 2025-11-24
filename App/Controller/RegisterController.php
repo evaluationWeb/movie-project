@@ -34,24 +34,18 @@ class RegisterController extends AbstractController
         $data = [];
         //Verifier si le formulaire est submit
         if (isset($_POST["submit"])) {
-            //vérifier si les champs sont remplis
-            if (
-                !empty($_POST["email"]) &&
-                !empty($_POST["password"]) &&
-                !empty($_POST["confirm-password"])
-            ) {
-
-                //vérifier si les 2 password sont identiques
-                if ($_POST["password"] === $_POST["confirm-password"]) {
-                    //vérifier si le compte n'existe pas
-                    if (!$this->accountRepository->isAccountExistsWithEmail($_POST["email"])) {
-                        //Objet Account
-                        $account = new Account();
-                        $account->setFirstname(Tools::sanitize($_POST["firstname"]));
-                        $account->setLastname(Tools::sanitize($_POST["lastname"]));
-                        $account->setEmail(Tools::sanitize($_POST["email"]));
-                        //Tester si le compte Account est valide
-                        try {
+            try {
+                //vérifier si les champs sont remplis
+                if (!empty($_POST["password"]) && !empty($_POST["confirm-password"])) {
+                    //vérifier si les 2 password sont identiques
+                    if ($_POST["password"] === $_POST["confirm-password"]) {
+                        //vérifier si le compte n'existe pas
+                        if (!$this->accountRepository->isAccountExistsWithEmail($_POST["email"])) {
+                            //Objet Account
+                            $account = new Account();
+                            $account->setFirstname(Tools::sanitize($_POST["firstname"]));
+                            $account->setLastname(Tools::sanitize($_POST["lastname"]));
+                            $account->setEmail(Tools::sanitize($_POST["email"]));
                             //Validation du model Account
                             $this->validator->validate($account);
                             //Hashage du password
@@ -66,24 +60,27 @@ class RegisterController extends AbstractController
                             $data["valid"] = "Le compte : " . $account->getEmail() . " a été ajouté en BDD";
                             //redirection dans 2 sec sur accueil
                             header("Location: /");
-                        } 
-                        //Capture de la ValidationException
-                        catch(ValidationException $ve){
-                            $data["error"] = $ve->getMessage();
+                        }
+                        //Message d'erreur le compte existe déja
+                        else {
+                            $data["error"] = "Le compte existe déja";
                         }
                     }
-                    //Message d'erreur le compte existe déja
+                    //Si différent on affiche un message d'erreur
                     else {
-                        $data["error"] = "Le compte existe déja";
+                        $data["error"] = "Les mots de passe sont différents";
                     }
-                } 
-                //Si différent on affiche un message d'erreur
-                else {
-                    $data["error"] = "Les mots de passe sont différents";
+                    //Sinon on affiche un message d'erreur
+                } else {
+                    $data["error"] = "Veuillez renseigner tous les champs du formulaire";
                 }
-                //Sinon on affiche un message d'erreur
-            } else {
-                $data["error"] = "Veuillez renseigner tous les champs du formulaire";
+            }
+            catch(\PDOException $pdo) {
+                $data["error"] = $pdo->getMessage();
+            }
+            //Capture de la ValidationException
+            catch (ValidationException $ve) {
+                $data["error"] = $ve->getMessage();
             }
         }
         return $this->render("register_account", "Inscription", $data);
@@ -117,23 +114,23 @@ class RegisterController extends AbstractController
                         $_SESSION["grant"] = $account["name"];
                         $_SESSION["connected"] = true;
                         return header('Location: /');
-                    } 
+                    }
                     //Sinon on affiche un message d'erreur (erreur password)
                     else {
                         $data["error"] = "Les informations de connexion sont incorrectes";
-                    }    
+                    }
                 }
                 //Sinon on affiche un message d'erreur (erreur du mail)
                 else {
                     $data["error"] = "Les informations de connexion sont incorrectes";
-                }  
+                }
             }
             //Si les champs ne sont pas remplis
             else {
                 $data["error"] = "Veuillez renseigner tous les champs du formulaire";
             }
         }
-            
+
         return $this->render("login", "Connexion", $data);
     }
 

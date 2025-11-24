@@ -41,8 +41,8 @@ class AccountRepository
             $req->bindValue(5, $account->getGrant()->getId(), \PDO::PARAM_INT);
             //Exécuter la requête
             $req->execute();
-        } catch (\Exception $e) {
-            echo $e->getMessage();
+        } catch (\PDOException $e) {
+            throw new \PDOException("Erreur d'enregistrement en BDD");
         }
     }
      /**

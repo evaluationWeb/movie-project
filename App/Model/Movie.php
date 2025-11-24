@@ -3,14 +3,23 @@
 namespace App\Model;
 
 use App\Model\Category;
+use Mithridatem\Validation\Attributes\NotBlank;
+use Mithridatem\Validation\Attributes\Length;
+use Mithridatem\Validation\Attributes\Positive;
 
 class Movie
 {
     //Attibuts
     private ?int $id;
+    #[NotBlank]
+    #[Length(min:2, max:50)]
     private ?string $title;
+    #[NotBlank]
+    #[Length(min:5, max:255)]
     private ?string $description;
     private ?\DateTimeImmutable $publishAt;
+    #[NotBlank]
+    #[Positive]
     private ?int $duration;
     private ?String $cover;
     private array $categories;
